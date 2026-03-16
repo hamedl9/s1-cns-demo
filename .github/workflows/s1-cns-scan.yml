@@ -21,25 +21,25 @@ jobs:
       - name: Configure SentinelOne Shift Left CLI
         run: >
           s1-cns-cli config
-          --service-user-api-token ${{ secrets.S1_SERVICE_USER_API_TOKEN }}
-          --management-console-url https://usea1-purple.sentinelone.net/
+          --service-user-api-token "${{ secrets.S1_SERVICE_USER_API_TOKEN }}"
+          --management-console-url "https://usea1-purple.sentinelone.net/"
           --scope-type ACCOUNT
-          --scope-id 1881212418608401729
-          --tag ${{ secrets.tag }}
+          --scope-id "1881212418608401729"
+          --tag "${{ secrets.tag }}"
 
       - name: Configure git config
-        run: git config --global --add safe.directory $PWD
+        run: git config --global --add safe.directory "$PWD"
 
       - name: Run Secret Detector
         id: secret-detector
         continue-on-error: true
         run: >
           s1-cns-cli scan secret
-          -d $PWD
-          --pull-request origin/$SRC $DEST
+          -d "$PWD"
+          --pull-request "origin/$SRC" "$DEST"
           --publish-result
-          --repo-full-name $REPO_FULL_NAME
-          --repo-url $REPO_URL/$REPO_FULL_NAME
+          --repo-full-name "$REPO_FULL_NAME"
+          --repo-url "$REPO_URL/$REPO_FULL_NAME"
           --provider GITHUB
         env:
           DEST: ${{ github.event.pull_request.base.sha }}
@@ -52,11 +52,11 @@ jobs:
         continue-on-error: true
         run: >
           s1-cns-cli scan iac
-          -d $PWD
+          -d "$PWD"
           --publish-result
-          --repo-full-name $REPO_FULL_NAME
-          --repo-url $REPO_URL/$REPO_FULL_NAME
-          --branch $BRANCH
+          --repo-full-name "$REPO_FULL_NAME"
+          --repo-url "$REPO_URL/$REPO_FULL_NAME"
+          --branch "$BRANCH"
           --provider GITHUB
         env:
           REPO_FULL_NAME: ${{ github.repository }}
@@ -66,7 +66,7 @@ jobs:
       - name: Run Vulnerability Scanner
         id: vuln-scanner
         continue-on-error: true
-        run: s1-cns-cli scan vuln -d $PWD
+        run: s1-cns-cli scan vuln -d "$PWD"
 
       - name: Check for failures
         if: steps.secret-detector.outcome == 'failure' || steps.iac-scanner.outcome == 'failure' || steps.vuln-scanner.outcome == 'failure'
